@@ -14,7 +14,6 @@ import pygame
 import sys
 import math
 import random
-import numpy as np
 from pygame.locals import *
 
 # ゲーム設定の定数
