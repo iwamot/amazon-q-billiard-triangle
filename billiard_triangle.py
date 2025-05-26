@@ -165,6 +165,15 @@ class Ball:
                 # 両方のボールを動かす
                 self.moving = True
                 other_ball.moving = True
+                
+                # 完全に同じ軸上にある場合、わずかにランダムな力を加える（無限ループ防止）
+                if abs(dx) < 0.001 or abs(dy) < 0.001:
+                    # 微小なランダムな力を加える
+                    random_force = 0.5
+                    self.vx += random.uniform(-random_force, random_force)
+                    self.vy += random.uniform(-random_force, random_force)
+                    other_ball.vx += random.uniform(-random_force, random_force)
+                    other_ball.vy += random.uniform(-random_force, random_force)
             
             return True
         
@@ -343,9 +352,9 @@ class BilliardTriangleGame:
                             if math.sqrt((mouse_pos[0] - ball.x)**2 + (mouse_pos[1] - ball.y)**2) < BALL_RADIUS * 2:
                                 can_place = False
                         
-                        # 一時的な球を更新
+                        # 一時的な球を更新（マウス位置に直接設定）
                         if can_place:
-                            self.temp_ball = Ball(mouse_pos[0], mouse_pos[1], PLAYER_BALL_COLOR)
+                            self.temp_ball = True
                         else:
                             self.temp_ball = None
             
@@ -392,9 +401,10 @@ class BilliardTriangleGame:
         
         # 一時的な球（プレビュー）を描画
         if self.temp_ball and not self.placing_ball and self.all_balls_stopped and self.balls_left > 0:
-            temp_surface = pygame.Surface((BALL_RADIUS*2, BALL_RADIUS*2), pygame.SRCALPHA)
-            pygame.draw.circle(temp_surface, (255, 255, 255, 128), (BALL_RADIUS, BALL_RADIUS), BALL_RADIUS)
-            self.screen.blit(temp_surface, (self.temp_ball.x - BALL_RADIUS, self.temp_ball.y - BALL_RADIUS))
+            # マウスの現在位置を取得して、そこに半透明の球を描画
+            mouse_pos = pygame.mouse.get_pos()
+            if mouse_pos[1] <= BOARD_HEIGHT:
+                self.screen.blit(self.cursor_ball_surface, (mouse_pos[0] - BALL_RADIUS, mouse_pos[1] - BALL_RADIUS))
         
         # 情報表示
         self._draw_ui()
